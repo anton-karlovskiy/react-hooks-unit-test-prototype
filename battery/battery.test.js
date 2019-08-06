@@ -105,8 +105,9 @@ describe('useBatteryStatus', () => {
       };
 
       act(() => {
-        // FYI: with following test gets successful, I thought map.levelchange(updatedBattery) would behave in the same way as the following code snippets
-        // but behavior appears to be different in both cases
+        // FYI: with the following two lines, test gets successful, I thought map.levelchange(updatedBattery) would behave in the same way as the following code snippets
+        // but behavior appears to be different from the following
+        
         // const listenerCallback = result.current.updateBatteryStatus.bind(null, updatedBattery);
         // listenerCallback(updatedBattery);
 
