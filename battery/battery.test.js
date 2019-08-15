@@ -18,8 +18,6 @@ import 'babel-polyfill';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useBatteryStatus } from './';
 
-// TODO: addEventListener change trigger mocking
-
 describe('useBatteryStatus', () => {
   const unsupportMessage = require('./').unsupportMessage; 
   test(`should return ${unsupportMessage}`, () => {
@@ -74,7 +72,6 @@ describe('useBatteryStatus', () => {
     }
   });
   
-
   test('should update the batteryStatus state when battery level change event', async () => {
     const originalError = console.error;
     console.error = jest.fn();
@@ -116,6 +113,7 @@ describe('useBatteryStatus', () => {
       act(() => {
         // the argument `battery` seems persisted with the initial argument value even when battery level change event triggered with new argument value due to Javascript scope or something
         result.current.monitorBattery(updatedBattery); // for the purpose of updated battery argument value
+        // TODO: should make sure the argument is used to update the state
         map.levelchange(updatedBattery); // if we comment out this line, test is passed successfully
       });
 
