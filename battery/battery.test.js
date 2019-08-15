@@ -73,21 +73,18 @@ describe('useBatteryStatus', () => {
       console.error = originalError;
     }
   });
+  
 
-  // ray test touch <
   test('should update the batteryStatus state when battery level change event', async () => {
     const originalError = console.error;
     console.error = jest.fn();
 
-    const map = {};
     const battery = {
       chargingTime: 20,
       dischargingTime: 40,
       level: 50,
       charging: true,
-      addEventListener: jest.fn().mockImplementation((event, callback) => {
-        map[event] = callback;
-      })
+      addEventListener: jest.fn()
     };
 
     const mockGetBattery = jest.fn().mockImplementation(() => Promise.resolve(battery));
@@ -97,21 +94,29 @@ describe('useBatteryStatus', () => {
       const { result, waitForNextUpdate } = renderHook(() => useBatteryStatus());
       await waitForNextUpdate();
 
+      const map = {};
       const updatedBattery = {
         chargingTime: 30,
         dischargingTime: 50,
         level: 60,
-        charging: false
+        charging: false,
+        addEventListener: jest.fn().mockImplementation((event, callback) => {
+          map[event] = callback;
+        })
       };
 
-      act(() => {
-        // FYI: with the following two lines, test gets successful, I thought map.levelchange(updatedBattery) would behave in the same way as the following code snippets
-        // but behavior appears to be different from the following
-        
-        // const listenerCallback = result.current.updateBatteryStatus.bind(null, updatedBattery);
-        // listenerCallback(updatedBattery);
+      // batteryStatus is supposed to be updated because updateBatteryStatus should be called internally
+      expect(result.current.batteryStatus).toEqual({
+        chargingTime: '20 Seconds',
+        dichargeTime: '40 Seconds',
+        level: 50,
+        chargingState: 'Charging'
+      });
 
-        map.levelchange(updatedBattery);
+      act(() => {
+        // the argument `battery` seems persisted with the initial argument value even when battery level change event triggered with new argument value due to Javascript scope or something
+        result.current.monitorBattery(updatedBattery); // for the purpose of updated battery argument value
+        map.levelchange(updatedBattery); // if we comment out this line, test is passed successfully
       });
 
       expect(result.current.batteryStatus).toEqual({
@@ -124,5 +129,4 @@ describe('useBatteryStatus', () => {
       console.error = originalError;
     }
   });
-  // ray test touch >
 });
